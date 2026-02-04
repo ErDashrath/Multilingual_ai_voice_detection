@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎙️ AI Voice Detection API - Test Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 1.1em;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .card h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+        
+        input[type="file"] {
+            padding: 10px;
+        }
+        
+        .file-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .file-upload.dragover {
+            border-color: #7b2cbf;
+            background: rgba(123, 44, 191, 0.1);
+        }
+        
+        .file-upload-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            color: #00d4ff;
+            font-weight: 500;
+        }
+        
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-card {
+            display: none;
+        }
+        
+        .result-card.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .result-icon {
+            font-size: 3em;
+        }
+        
+        .result-title {
+            font-size: 1.8em;
+        }
+        
+        .ai-generated {
+            color: #ff6b6b;
+        }
+        
+        .human {
+            color: #51cf66;
+        }
+        
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .detail-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .detail-label {
+            color: #888;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .confidence-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+        
+        .explanation-box {
+            grid-column: 1 / -1;
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+        }
+        
+        .json-output {
+            background: #0d1117;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        .json-output pre {
+            color: #58a6ff;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+        }
+        
+        .error-card {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+        
+        .error-card h2 {
+            color: #ff6b6b;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .languages {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .lang-tag {
+            padding: 5px 15px;
+            background: rgba(0, 212, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+        }
+        
+        footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎙️ AI Voice Detection</h1>
+            <p class="subtitle">Detect AI-Generated vs Human Voice</p>
+            <div class="languages">
+                <span class="lang-tag">🇮🇳 Tamil</span>
+                <span class="lang-tag">🇬🇧 English</span>
+                <span class="lang-tag">🇮🇳 Hindi</span>
+                <span class="lang-tag">🇮🇳 Malayalam</span>
+                <span class="lang-tag">🇮🇳 Telugu</span>
+            </div>
+        </header>
+        
+        <div class="card">
+            <h2>📤 Upload Audio File</h2>
+            
+            <div class="form-group">
+                <label for="apiKey">API Key</label>
+                <input type="text" id="apiKey" value="sk_test_123456789" placeholder="Enter your API key">
+            </div>
+            
+            <div class="form-group">
+                <label for="language">Language</label>
+                <select id="language">
+                    <option value="Tamil">Tamil</option>
+                    <option value="English" selected>English</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Malayalam">Malayalam</option>
+                    <option value="Telugu">Telugu</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Audio File (MP3)</label>
+                <div class="file-upload" id="dropZone">
+                    <div class="file-upload-icon">🎵</div>
+                    <p>Drag & drop MP3 file here or click to browse</p>
+                    <input type="file" id="audioFile" accept=".mp3,audio/mpeg" hidden>
+                    <p class="file-name" id="fileName"></p>
+                </div>
+            </div>
+            
+            <button id="detectBtn" disabled>🔍 Detect Voice</button>
+        </div>
+        
+        <div class="card loading" id="loadingCard">
+            <div class="spinner"></div>
+            <p>Analyzing audio... This may take a moment for first request (loading models)</p>
+        </div>
+        
+        <div class="card result-card" id="resultCard">
+            <div class="result-header">
+                <span class="result-icon" id="resultIcon">🤖</span>
+                <div>
+                    <div class="result-title" id="resultTitle">AI GENERATED</div>
+                </div>
+            </div>
+            
+            <div class="result-details">
+                <div class="detail-item">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value" id="resultStatus">success</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Language</div>
+                    <div class="detail-value" id="resultLanguage">English</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Classification</div>
+                    <div class="detail-value" id="resultClassification">AI_GENERATED</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Confidence Score</div>
+                    <div class="detail-value" id="resultConfidence">0.91</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="detail-item explanation-box">
+                    <div class="detail-label">Explanation</div>
+                    <div class="detail-value" id="resultExplanation" style="font-size: 1em; font-weight: normal;"></div>
+                </div>
+            </div>
+            
+            <div class="json-output">
+                <div class="detail-label">Raw JSON Response</div>
+                <pre id="jsonOutput"></pre>
+            </div>
+        </div>
+        
+        <div class="card result-card error-card" id="errorCard">
+            <h2>❌ Error</h2>
+            <p id="errorMessage"></p>
+            <div class="json-output">
+                <pre id="errorJson"></pre>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Models: <a href="https://huggingface.co/MelodyMachine/Deepfake-audio-detection-V2" target="_blank">MelodyMachine/Deepfake-audio-detection-V2</a> (99.73% accuracy)</p>
+            <p style="margin-top: 10px;">API Documentation: <a href="/docs" target="_blank">/docs</a></p>
+        </footer>
+    </div>
+    
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('audioFile');
+        const fileName = document.getElementById('fileName');
+        const detectBtn = document.getElementById('detectBtn');
+        const loadingCard = document.getElementById('loadingCard');
+        const resultCard = document.getElementById('resultCard');
+        const errorCard = document.getElementById('errorCard');
+        
+        let selectedFile = null;
+        
+        // Drag and drop handlers
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            handleFile(file);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+        
+        function handleFile(file) {
+            if (file && file.type === 'audio/mpeg') {
+                selectedFile = file;
+                fileName.textContent = `✅ ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                detectBtn.disabled = false;
+            } else {
+                alert('Please select a valid MP3 file');
+            }
+        }
+        
+        // Convert file to Base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    // Remove the data URL prefix (data:audio/mpeg;base64,)
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        // Detect button click
+        detectBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            
+            const apiKey = document.getElementById('apiKey').value;
+            const language = document.getElementById('language').value;
+            
+            // Show loading
+            loadingCard.classList.add('show');
+            resultCard.classList.remove('show');
+            errorCard.classList.remove('show');
+            detectBtn.disabled = true;
+            
+            try {
+                const audioBase64 = await fileToBase64(selectedFile);
+                
+                const response = await fetch('/api/voice-detection', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey
+                    },
+                    body: JSON.stringify({
+                        language: language,
+                        audioFormat: 'mp3',
+                        audioBase64: audioBase64
+                    })
+                });
+                
+                const data = await response.json();
+                
+                loadingCard.classList.remove('show');
+                
+                if (response.ok && data.status === 'success') {
+                    showResult(data);
+                } else {
+                    showError(data);
+                }
+                
+            } catch (error) {
+                loadingCard.classList.remove('show');
+                showError({ status: 'error', message: error.message });
+            }
+            
+            detectBtn.disabled = false;
+        });
+        
+        function showResult(data) {
+            resultCard.classList.add('show');
+            
+            const isAI = data.classification === 'AI_GENERATED';
+            
+            document.getElementById('resultIcon').textContent = isAI ? '🤖' : '👤';
+            document.getElementById('resultTitle').textContent = isAI ? 'AI GENERATED' : 'HUMAN';
+            document.getElementById('resultTitle').className = 'result-title ' + (isAI ? 'ai-generated' : 'human');
+            
+            document.getElementById('resultStatus').textContent = data.status;
+            document.getElementById('resultLanguage').textContent = data.language;
+            document.getElementById('resultClassification').textContent = data.classification;
+            document.getElementById('resultConfidence').textContent = data.confidenceScore.toFixed(4);
+            document.getElementById('resultExplanation').textContent = data.explanation;
+            
+            const confidence = data.confidenceScore * 100;
+            const fill = document.getElementById('confidenceFill');
+            fill.style.width = confidence + '%';
+            fill.style.background = isAI ? 
+                'linear-gradient(90deg, #ff6b6b, #ee5a5a)' : 
+                'linear-gradient(90deg, #51cf66, #40c057)';
+            
+            document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 2);
+        }
+        
+        function showError(data) {
+            errorCard.classList.add('show');
+            document.getElementById('errorMessage').textContent = data.message || data.detail?.message || 'Unknown error';
+            document.getElementById('errorJson').textContent = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
